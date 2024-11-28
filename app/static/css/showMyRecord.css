@@ -1,0 +1,117 @@
+@font-face {
+    font-family: 'NanumSquareNeo';
+    src: url('../assets/fonts/NanumSquareNeoOTF-Bd.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+body {
+    font-family: NanumSquareNeo, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px; /* 넓이 증가 */
+    padding: 20px;
+    border-radius: 8px;
+    overflow-y: auto; /* 스크롤 가능하게 설정 */
+    height: 90vh; /* 세로 공간 확보 */
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.header img {
+    width: 150px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.header h1 {
+    font-size: 24px;
+    color: #7A3131;
+}
+
+.section h2 {
+    font-size: 18px;
+    color: #1A1C1E;
+    margin-bottom: 15px;
+}
+
+.record-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px; /* 각 카드 간격 */
+}
+
+/* 카테고리 카드 */
+.category-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.card-header .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.card-header .name {
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+.card-body p {
+    font-size: 14px;
+    color: #555;
+    margin: 0;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    body {
+        padding: 20px;
+    }
+
+    .container {
+        margin: 0 auto;
+    }
+
+    .header h1 {
+        font-size: 20px;
+    }
+
+    .category-card {
+        padding: 10px;
+    }
+
+    .card-header .name {
+        font-size: 14px;
+    }
+
+    .card-body p {
+        font-size: 12px;
+    }
+}

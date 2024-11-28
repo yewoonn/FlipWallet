@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>영수증 기록하기</title>
+  <link rel="stylesheet" href="../static/css/receiptRecord.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <img src="../static/assets/icons/header.png" alt="Flip Wallet Logo">
+      <h1>영수증으로 기록하기</h1>
+    </header>
+    
+    <section class="section">
+      <!-- 영수증 업로드 -->
+      <h2>영수증을 업로드하세요</h2>
+      <div class="receipt-upload">
+        <input type="file" id="receipt-input" accept="image/*">
+      </div>
+
+      <!-- 업로드된 이미지 미리보기 -->
+      <div class="image-preview" id="image-preview">
+        <p class="file-info" id="file-info">선택된 파일 없음</p>
+        <img id="receipt-image" src="" alt="Uploaded Receipt" style="display: none;">
+      </div>
+
+      <!-- 기록 완료 버튼 -->
+      <button class="submit-button">기록 완료</button>
+    </section>
+  </div>
+
+  <script src="../static/js/receiptRecord.js"></script>
+</body>
+</html>

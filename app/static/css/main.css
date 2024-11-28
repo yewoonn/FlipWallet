@@ -1,0 +1,71 @@
+@font-face {
+    font-family: 'NanumSquareNeo';
+    src: url('../assets/fonts/NanumSquareNeoOTF-Bd.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+  }
+  
+  body {
+    font-family: NanumSquareNeo, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+  }
+  
+  .header img {
+    width: 200px;
+    height: auto;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .header h1 {
+    font-size: 20px;
+    color: #7A3131;
+    margin: 10;
+  }
+  .section h2 {
+    font-size: 18px;
+    color: white;
+    margin-bottom: 15px;
+  }
+  
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .main-button {
+    padding: 15px;
+    font-size: 16px;
+    color: #F25B5B;
+    border: solid 2px;
+    border-radius: 8px;
+    border-color: #F25B5B;
+    background-color: #f9f9f9;
+    cursor: pointer;
+  }
+  
+  .main-button:hover {
+    background-color: #F25B5B;
+    color : white;
+  }
+  

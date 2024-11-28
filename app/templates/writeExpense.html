@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지출 기록하기</title>
+  <link rel="stylesheet" href="../static/css/writeExpense.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <img src="../static/assets/icons/header.png" alt="Flip Wallet Logo">
+      <h1>지출 기록하기</h1>
+      <!-- 로그인된 사용자 정보 표시 -->
+      <div id="user-info" class="user-info" style="position: absolute; top: 10px; right: 20px; font-size: 14px; color: #333;"></div>
+    </header>
+
+    <section class="section">
+      <!-- 지출 항목 입력 -->
+      <h2>1. 무엇을 지출하셨나요?</h2>
+      <div class="input-group">
+        <label for="expense-item">지출 항목</label>
+        <input type="text" id="expense-item" placeholder="지출 항목 입력">
+      </div>
+
+      <!-- 지출 카테고리 선택 -->
+      <h2>2. 어디에 지출하셨나요?</h2>
+      <div class="category-list">
+        <label for="category-select">카테고리 선택</label>
+        <select id="category-select">
+        </select>
+      </div>
+
+      <!-- 지출 금액 입력 -->
+      <h2>3. 얼마나 지출하셨나요?</h2>
+      <div class="amount-input-container">
+        <div class="amount-display">
+          <input type="text" id="amount-input" value="0" readonly>
+          <span>원</span>
+        </div>
+        <button class="direct-input-button">직접 입력</button>
+      </div>
+
+      <div class="amount-buttons">
+        <button class="amount-button" data-amount="50000">+ 5만원</button>
+        <button class="amount-button" data-amount="10000">+ 1만원</button>
+        <button class="amount-button" data-amount="5000">+ 5천원</button>
+        <button class="amount-button" data-amount="1000">+ 1천원</button>
+        <button class="amount-button" data-amount="500">+ 5백원</button>
+        <button class="amount-button" data-amount="100">+ 1백원</button>
+      </div>
+
+      <!-- 기록 완료 버튼 -->
+      <button class="submit-button">기록 완료</button>
+    </section>
+  </div>
+
+  <script src="../static/js/writeExpense.js"></script>
+</body>
+</html>

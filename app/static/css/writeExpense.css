@@ -1,0 +1,231 @@
+@font-face {
+    font-family: 'NanumSquareNeo';
+    src: url('../assets/fonts/NanumSquareNeoOTF-Bd.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+  }
+  
+  body {
+    font-family: NanumSquareNeo, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .header {
+    margin-bottom: 20px;
+  }
+  
+  .header img {
+    width: 150px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+  
+  .header h1 {
+    font-size: 24px;
+    color: #7A3131;
+  }
+  
+  .section h2 {
+    font-size: 18px;
+    color: #1A1C1E;
+    margin-bottom: 15px;
+  }
+  
+  .input-group,
+  .category-list {
+    margin-bottom: 20px;
+  }
+  
+  .input-group label,
+  .category-list label {
+    font-size: 14px;
+    color: #333;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .input-group input,
+  .category-list select,
+  .category-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .input-group input.error,
+  .category-input.error {
+    border-color: #F25B5B;
+  }
+  
+  .category {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .category .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  
+  .category .name {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .input-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .error-message {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #E75C5C;
+    display: none;
+  }
+  
+  
+  .total {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .total h3 {
+    font-size: 18px;
+    color: #7A3131;
+  }
+  
+  .submit-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #e63946;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .submit-button:hover {
+    background-color: #d62828;
+  }
+
+
+  .amount-input-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .amount-display {
+    display: flex;
+    align-items: center;
+  }
+  
+  .amount-display input {
+    width: 120px;
+    font-size: 18px;
+    text-align: right;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+    background-color: #f9f9f9;
+  }
+  
+  .amount-display span {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .direct-input-button {
+    background-color: #e63946;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 15px;
+    font-size: 14px;
+    width: 100px;
+    cursor: pointer;
+  }
+  
+  .direct-input-button:hover {
+    background-color: #d62828;
+  }
+  
+  .amount-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .amount-button {
+    flex: 1 1 calc(33.33% - 10px);
+    padding: 10px;
+    font-size: 14px;
+    color: #e63946;
+    border: 1px solid #e63946;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .amount-button:hover {
+    background-color: #ffe5e7;
+  }
+  
+  /* 반응형 스타일 */
+  @media (max-width: 768px) {
+    body {
+      padding: 20px;
+    }
+  
+    .container {
+      margin: 0 auto;
+    }
+  
+    .header h1 {
+      font-size: 20px;
+    }
+  
+    .submit-button {
+      font-size: 14px;
+      padding: 10px;
+    }
+  
+    .total h3 {
+      font-size: 16px;
+    }
+  
+    .category .name {
+      font-size: 12px;
+    }
+
+
+    
+  }
+  
