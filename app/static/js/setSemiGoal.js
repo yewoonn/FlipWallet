@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <input type="text" class="category-input" data-category-id="${category.id}" placeholder="카테고리 별 예산 입력">
             <p class="error-message" style="color: #E75C5C; font-size: 12px; display: none;">숫자만 입력 가능합니다</p>
           </div>
-          <span>만원</span>
+          <span>원</span>
         </div>
       `;
       categoryList.insertAdjacentHTML("beforeend", categoryHTML); // HTML 추가
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     submitButton.addEventListener("click", () => {
       const categoryData = Array.from(categoryInputs).map((input) => ({
         category_id: parseInt(input.getAttribute("data-category-id")), // category_id 사용
-        budget: parseFloat(input.value) || 0.0 // float 형식으로 변환
+        budget: parseFloat(input.value) || 0 // float 형식으로 변환
       }));
       const surplusBudget = parseFloat(surplusInput.value) || 0.0;
 

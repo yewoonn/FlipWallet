@@ -29,10 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 recordGrid.innerHTML = ''; // 기존 기록 초기화
 
                 data.categories.forEach((category) => {
-                    const budget = category.budget !== undefined ? parseFloat(category.budget).toFixed(2) : "0.00";
-                    const semiExpense = category.semi_expense !== undefined ? parseFloat(category.semi_expense).toFixed(2) : "0.00";
-                    const semiRemaining = category.semi_remaining !== undefined ? parseFloat(category.semi_remaining).toFixed(2) : "0.00";
-                    const semiOver = category.semi_over !== undefined ? parseFloat(category.semi_over).toFixed(2) : "0.00";
+                    const budget = category.budget !== undefined ? parseInt(category.budget).toLocaleString() : "0";
+                    const semiExpense = category.semi_expense !== undefined ? parseInt(category.semi_expense).toLocaleString() : "0";
+                    const semiRemaining = category.semi_remaining !== undefined ? parseInt(category.semi_remaining).toLocaleString() : "0";
+                    const semiOver = category.semi_over !== undefined ? parseInt(category.semi_over).toLocaleString() : "0";
 
                     const categoryHTML = `
                         <div class="category-card">
@@ -41,10 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <span class="name">${category.category_name}</span>
                             </div>
                             <div class="card-body">
-                                <p><strong>예산:</strong> ${budget} 만원</p>
-                                <p><strong>지출 금액:</strong> ${semiExpense} 만원</p>
-                                <p><strong>잔여 금액:</strong> ${semiRemaining} 만원</p>
-                                <p><strong>초과 금액:</strong> ${semiOver} 만원</p>
+                                <p><strong>예산:</strong> ${budget} 원</p>
+                                <p><strong>지출 금액:</strong> ${semiExpense} 원</p>
+                                <p><strong>잔여 금액:</strong> ${semiRemaining} 원</p>
+                                <p><strong>초과 금액:</strong> ${semiOver} 원</p>
                             </div>
                         </div>
                     `;
