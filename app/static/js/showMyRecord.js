@@ -22,12 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
             return response.json();
         })
         .then(data => {
+            console.log("Received data: ", data); // 데이터 로깅
+            const recordGrid = document.querySelector(".record-grid");
+
             if (data && data.categories && data.categories.length > 0) {
-                const recordGrid = document.querySelector(".record-grid");
                 recordGrid.innerHTML = ''; // 기존 기록 초기화
 
-                // 각 카테고리별 기록을 카드 형태로 표시
                 data.categories.forEach((category) => {
+                    const budget = category.budget !== undefined ? parseFloat(category.budget).toFixed(2) : "0.00";
+                    const semiExpense = category.semi_expense !== undefined ? parseFloat(category.semi_expense).toFixed(2) : "0.00";
+                    const semiRemaining = category.semi_remaining !== undefined ? parseFloat(category.semi_remaining).toFixed(2) : "0.00";
+                    const semiOver = category.semi_over !== undefined ? parseFloat(category.semi_over).toFixed(2) : "0.00";
+
                     const categoryHTML = `
                         <div class="category-card">
                             <div class="card-header">
@@ -35,10 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <span class="name">${category.category_name}</span>
                             </div>
                             <div class="card-body">
-                                <p><strong>예산:</strong> ${category.budget}만원</p>
-                                <p><strong>지출 금액:</strong> ${category.semi_expense}만원</p>
-                                <p><strong>잔여 금액:</strong> ${category.semi_remaining}만원</p>
-                                <p><strong>초과 금액:</strong> ${category.semi_over}만원</p>
+                                <p><strong>예산:</strong> ${budget} 만원</p>
+                                <p><strong>지출 금액:</strong> ${semiExpense} 만원</p>
+                                <p><strong>잔여 금액:</strong> ${semiRemaining} 만원</p>
+                                <p><strong>초과 금액:</strong> ${semiOver} 만원</p>
                             </div>
                         </div>
                     `;
@@ -46,9 +52,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             } else {
                 console.error("기록이 없습니다.", data);
+                recordGrid.innerHTML = '<p>기록이 없습니다. 세부 목표를 설정해 주세요.</p>';
             }
         })
         .catch(error => {
             console.error("데이터 가져오기 오류:", error);
+            const recordGrid = document.querySelector(".record-grid");
+            recordGrid.innerHTML = `<p>데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>`;
         });
 });

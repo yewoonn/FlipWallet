@@ -62,11 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("올바른 금액을 입력하세요.");
         }
     });
-
     // 제출 버튼 클릭 이벤트
     submitButton.addEventListener("click", () => {
         // 사용자 입력 값 가져오기
-        const item = document.getElementById("expense-item").value;
+        const item = document.getElementById("expense-item").value.trim();
         const categoryId = parseInt(categorySelect.value, 10);
         const price = parseFloat(amountInput.value.replace(/,/g, ""));
 
@@ -79,12 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // 서버로 전송할 데이터 구성
         const data = {
             member_id: memberId,
-            semi_id: categoryId,
+            category_id: categoryId,
             item: item,
             price: price
         };
 
-        console.log("전송할 데이터:", data); // 데이터 확인 로그
+        console.log("전송할 데이터:", JSON.stringify(data, null, 2)); // 데이터 확인 로그
 
         // 서버로 데이터 전송 (POST 요청)
         fetch("/writeExpense", {
@@ -92,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data) // JSON 형식으로 데이터를 보냅니다.
         })
         .then(response => {
             if (response.ok) {
@@ -105,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(data => {
             alert("지출 기록이 성공적으로 저장되었습니다.");
-            window.location.href = "showMyRecord.html"; // 성공적으로 저장된 후 페이지 이동
+            window.location.href = "/showMyRecord"; // 성공적으로 저장된 후 페이지 이동
         })
         .catch(error => {
             console.error("통신 오류:", error); // 통신 오류 확인

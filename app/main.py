@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, Column, String
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import sessionmaker, Session
-from fastapi import FastAPI, HTTPException, Form, Depends, Request, Query
+from fastapi import FastAPI, HTTPException, Form, Depends, Request, Query, status
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -141,14 +141,10 @@ async def signup(
 async def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(Member).filter(Member.login_id == login_request.login_id).first()
 
-    if not user:
+    # 해시 비교까지 한번에 진행
+    if not user or not pwd_context.verify(login_request.password, user.password):
         return JSONResponse(status_code=400, content={"detail": "Invalid login ID or password"})
 
-    # 비밀번호 해시 비교
-    if not pwd_context.verify(login_request.password, user.password):
-        return JSONResponse(status_code=400, content={"detail": "Invalid login ID or password"})
-
-    # 로그인 성공 시 응답에 member_id와 name을 포함하여 반환
     return JSONResponse(
         status_code=200,
         content={
@@ -160,75 +156,80 @@ async def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     )
 
 
+
+
 @app.post("/setSemiGoal", response_class=JSONResponse)
-async def set_semi_goal(
-    request: SetSemiGoalRequest,
-    db: Session = Depends(get_db)
-):
+async def set_semi_goal(request: SetSemiGoalRequest, db: Session = Depends(get_db)):
     try:
-        # 수신된 데이터 출력
         print("수신된 데이터(JSON):", request.dict())
 
-        # 사용자 확인
+        # Member 확인
         member = db.query(Member).filter(Member.member_id == request.member_id).first()
         if not member:
-            print("사용자를 찾을 수 없습니다:", request.member_id)
             raise HTTPException(status_code=404, detail="User not found")
 
-        # 전체 목표가 이미 있는지 확인
+        # Total Goal 확인 또는 생성
         total_goal = db.query(TotalGoal).filter(TotalGoal.member_id == request.member_id).first()
         if not total_goal:
-            # 전체 목표가 없다면 새로 생성
             total_goal = TotalGoal(
-                goal_id=str(uuid.uuid4()),  # 고유한 전체 목표 ID 생성
+                goal_id=str(uuid.uuid4()),
                 member_id=request.member_id,
-                total_budget="0",  # 초기값 설정
-                total_expense="0",
-                total_over="0",
-                total_remaining="0"
+                created_at=datetime.now(),
+                total_budget=0.0,
+                total_expense=0.0,
+                total_over=0.0,
+                total_remaining=0.0
             )
             db.add(total_goal)
             db.commit()
             db.refresh(total_goal)
 
-        # 카테고리 ID를 기준으로 카테고리를 찾고 세부 목표를 생성합니다.
+        # 세부 목표 설정
         for category_data in request.categories:
-            category = db.query(Category).filter(Category.category_id == category_data.category_id).first()
-            if not category:
-                print(f"카테고리를 찾을 수 없습니다: {category_data.category_id}")
-                raise HTTPException(status_code=404, detail=f"Category ID '{category_data.category_id}' not found")
+            # 기존에 SemiGoal이 있는지 확인
+            semi_goal = db.query(SemiGoal).filter(SemiGoal.category_id == category_data.category_id).first()
 
-            # 새로운 세부 목표 추가
-            new_semi_goal = SemiGoal(
-                semi_id=str(uuid.uuid4()),
-                semi_budget=str(category_data.budget),  # 예산 값은 문자열로 저장할 수도 있음 (데이터베이스 모델 확인 필요)
-                category_id=category.category_id,
-            )
-            db.add(new_semi_goal)
+            if not semi_goal:
+                # SemiGoal을 새로 생성
+                semi_goal = SemiGoal(
+                    semi_id=str(uuid.uuid4()),
+                    semi_budget=category_data.budget,
+                    category_id=category_data.category_id
+                )
+                db.add(semi_goal)
+                db.commit()
+                db.refresh(semi_goal)
 
-            # 새로운 세부 목표 진행 추가
-            new_semi_goal_process = SemiGoalProcess(
-                semi_process_id=str(uuid.uuid4()),
-                member_id=request.member_id,
-                goal_id=total_goal.goal_id,
-                semi_expense="0",
-                semi_over="0",
-                semi_remaining=str(category_data.budget),
-                semi_id=new_semi_goal.semi_id
-            )
-            db.add(new_semi_goal_process)
+            # 기존에 SemiGoalProcess가 있는지 확인
+            semi_goal_process = db.query(SemiGoalProcess).filter(
+                SemiGoalProcess.member_id == request.member_id,
+                SemiGoalProcess.goal_id == total_goal.goal_id,
+                SemiGoalProcess.semi_id == semi_goal.semi_id
+            ).first()
 
-        # 데이터베이스에 변경 사항 커밋
+            if semi_goal_process:
+                # 이미 존재하는 경우 업데이트
+                semi_goal_process.semi_remaining = category_data.budget
+                semi_goal_process.semi_expense = 0.0
+            else:
+                # 새로운 SemiGoalProcess 생성
+                new_semi_goal_process = SemiGoalProcess(
+                    semi_process_id=str(uuid.uuid4()),
+                    member_id=request.member_id,
+                    goal_id=total_goal.goal_id,
+                    semi_expense=0.0,
+                    semi_remaining=category_data.budget,
+                    semi_id=semi_goal.semi_id
+                )
+                db.add(new_semi_goal_process)
+
         db.commit()
         return {"message": "세부 목표와 목표 진행 데이터가 성공적으로 저장되었습니다."}
-
-    except HTTPException as http_ex:
-        print("HTTP 예외 발생:", http_ex.detail)  # HTTP 예외 메시지 로그 출력
-        raise http_ex
     except Exception as e:
-        print("서버에서 예외 발생:", str(e))  # 기타 예외 로그 출력
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"서버 오류 발생: {str(e)}")
+
+
 
 
 
@@ -237,7 +238,7 @@ async def get_my_record(member_id: str = Query(...), db: Session = Depends(get_d
     try:
         print(f"수신된 member_id: {member_id}")
 
-        # 사용자 확인 (필요하다면 생략 가능)
+        # 사용자 확인
         member = db.query(Member).filter(Member.member_id == member_id).first()
         if not member:
             raise HTTPException(status_code=404, detail="User not found")
@@ -245,28 +246,29 @@ async def get_my_record(member_id: str = Query(...), db: Session = Depends(get_d
         # 세부 목표 진행 상황 조회
         records = (
             db.query(SemiGoalProcess, SemiGoal, Category)
-            .join(SemiGoal, SemiGoalProcess.semi_id == SemiGoal.semi_id)
-            .join(Category, SemiGoal.category_id == Category.category_id)
+            .join(SemiGoal, SemiGoalProcess.semi_id == SemiGoal.semi_id, isouter=True)
+            .join(Category, SemiGoal.category_id == Category.category_id, isouter=True)
             .filter(SemiGoalProcess.member_id == member_id)
             .all()
         )
 
-        if not records:
+        if not records or len(records) == 0:
             print("기록이 없습니다.")
             return {"categories": []}
 
         response_data = []
         for semi_process, semi_goal, category in records:
             response_data.append({
-                "category_name": category.category_name,
-                "color": category.category_color,
-                "budget": float(semi_goal.semi_budget),
-                "semi_expense": float(semi_process.semi_expense),
-                "semi_remaining": float(semi_process.semi_remaining),
-                "semi_over": float(semi_process.semi_over)
+                "category_name": category.category_name if category else "Unknown Category",
+                "color": category.category_color if category else "#000000",
+                "budget": float(semi_goal.semi_budget) if semi_goal and semi_goal.semi_budget else 0.0,
+                "semi_expense": float(semi_process.semi_expense) if semi_process and semi_process.semi_expense else 0.0,
+                "semi_remaining": float(
+                    semi_process.semi_remaining) if semi_process and semi_process.semi_remaining else 0.0,
+                "semi_over": float(semi_process.semi_over) if semi_process and semi_process.semi_over else 0.0
             })
 
-        # 수신된 데이터를 콘솔에 출력하여 확인
+        # 수신된 데이터를 로그로 출력하여 확인
         print("반환 데이터:", response_data)
 
         return {"categories": response_data}
@@ -278,54 +280,56 @@ async def get_my_record(member_id: str = Query(...), db: Session = Depends(get_d
 
 
 
+
+
 @app.post("/writeExpense", response_class=JSONResponse)
-async def write_expense(
-    request: ExpenseRequest,
-    db: Session = Depends(get_db)
-):
+async def write_expense(expense_request: ExpenseRequest, db: Session = Depends(get_db)):
     try:
-        # 수신된 데이터 확인
-        print("수신된 데이터(JSON):", request.dict())
-
-        # 사용자 확인
-        member = db.query(Member).filter(Member.member_id == request.member_id).first()
+        # Member 확인
+        member = db.query(Member).filter(Member.member_id == expense_request.member_id).first()
         if not member:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
 
-        # 세부 목표 확인
+        # SemiGoal과 Category를 기반으로 SemiGoalProcess 찾기
+        semi_goal = db.query(SemiGoal).filter(SemiGoal.category_id == expense_request.category_id).first()
+        if not semi_goal:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Semi goal not found for category_id")
+
+        # 해당 member_id와 연결된 SemiGoalProcess 찾기
         semi_goal_process = db.query(SemiGoalProcess).filter(
-            SemiGoalProcess.member_id == request.member_id,
-            SemiGoalProcess.semi_id == request.semi_id
+            SemiGoalProcess.semi_id == semi_goal.semi_id,
+            SemiGoalProcess.member_id == expense_request.member_id
         ).first()
 
         if not semi_goal_process:
-            raise HTTPException(status_code=404, detail=f"Semi goal not found for semi_id: {request.semi_id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Semi goal process not found for category_id: {expense_request.category_id} and member_id: {expense_request.member_id}"
+            )
 
         # Expense 데이터 생성 및 삽입
         new_expense = Expense(
             expense_id=str(uuid.uuid4()),
-            semi_id=semi_goal_process.semi_id,
+            semi_process_id=semi_goal_process.semi_process_id,  # 수정된 부분: semi_process_id 사용
             goal_id=semi_goal_process.goal_id,
-            member_id=request.member_id,
-            price=str(request.price),
-            item=request.item,
-            created_at=str(datetime.datetime.now())
+            member_id=expense_request.member_id,
+            price=expense_request.price,
+            item=expense_request.item,
+            created_at=datetime.now()
         )
         db.add(new_expense)
 
-        # 잔여 예산 업데이트
-        semi_goal_process.semi_expense = str(float(semi_goal_process.semi_expense) + request.price)
-        semi_goal_process.semi_remaining = str(float(semi_goal_process.semi_remaining) - request.price)
+        # 잔여 예산 업데이트 (Semi Goal Process)
+        semi_goal_process.semi_expense += expense_request.price
+        semi_goal_process.semi_remaining -= expense_request.price
 
         # Total-Goal 업데이트 (전체 목표 금액 차감)
         total_goal = db.query(TotalGoal).filter(TotalGoal.goal_id == semi_goal_process.goal_id).first()
         if total_goal:
-            total_goal.total_expense = str(float(total_goal.total_expense) + request.price)
-            total_goal.total_remaining = str(float(total_goal.total_remaining) - request.price)
+            total_goal.total_expense += expense_request.price
+            total_goal.total_remaining -= expense_request.price
 
-        # 데이터베이스 커밋
         db.commit()
-
         return {"message": "지출 기록이 성공적으로 저장되었습니다."}
 
     except HTTPException as http_ex:

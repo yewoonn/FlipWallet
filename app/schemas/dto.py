@@ -30,6 +30,6 @@ class SetSemiGoalRequest(BaseModel):
 # 지출 기록 요청 DTO
 class ExpenseRequest(BaseModel):
     member_id: str
-    semi_id: int
+    category_id: int
     item: str
     price: float
