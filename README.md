@@ -1,10 +1,10 @@
-# Flip Wallet - 지출 관리 웹 애플리케이션
+# Flip Wallet - 지출 관리 애플리케이션
 
 ![Flip Wallet Logo](app/static/assets/icons/logo.png)
 
 ## 📌 프로젝트 개요
 
-**Flip Wallet**은 개인의 지출을 관리하기 위해 만든 웹 애플리케이션입니다. 이 프로젝트는 사용자가 손쉽게 자신의 소비 내역을 기록하고 목표 예산에 따라 소비를 관리할 수 있도록 도와줍니다. 영수증 인식을 통한 지출 자동 입력 기능, 예산 관리 및 현재 진행 상황 확인 등의 기능을 제공합니다.
+**Flip Wallet**은 개인의 지출을 관리하기 위해 만든 애플리케이션입니다. 이 프로젝트는 사용자가 손쉽게 자신의 소비 내역을 기록하고 목표 예산에 따라 소비를 관리할 수 있도록 도와줍니다. 영수증 인식을 통한 지출 자동 입력 기능, 예산 관리 및 현재 진행 상황 확인 등의 기능을 제공합니다.
 
 ## ✨ 주요 기능
 
@@ -56,8 +56,8 @@ APIGW_Invoke_URL=<YOUR_CLOVA_API_URL>
 uvicorn app.main:app --reload
 ```
 
-### 5. 웹 애플리케이션 접근
-- 브라우저에서 [http://127.0.0.1:8000](http://127.0.0.1:8000) 주소로 접속하여 웹 애플리케이션을 사용할 수 있습니다.
+### 5. 애플리케이션 접근
+- 브라우저에서 [http://127.0.0.1:8000](http://127.0.0.1:8000) 주소로 접속하여 애플리케이션을 사용할 수 있습니다.
 
 ## 📋 주요 화면 구성
 
@@ -67,20 +67,29 @@ uvicorn app.main:app --reload
 
 ## 📸 스크린샷
 
-- **메인 화면**
-  ![메인 화면](app/static/screenshots/main.png)
+**메인 화면**
 
-- **영수증 업로드 화면**
-  ![영수증 업로드](app/static/screenshots/receipt.png)
+![메인 화면](../static/screenshots/main.png)
 
-- **지출 기록 화면**
-  ![지출 기록](app/static/screenshots/record.png)
 
-- **세부 목표 설정 화면**
-  ![세부 목표 설정](app/static/screenshots/set.png)
+**영수증 업로드 화면**
 
-- **나의 지출 현황 확인**
-  ![지출 현황](app/static/screenshots/show.png)
+![영수증 업로드](../static/screenshots/receipt.png)
+
+
+**지출 기록 화면**
+
+![지출 기록](../static/screenshots/record.png)
+
+
+**세부 목표 설정 화면**
+
+![세부 목표 설정](../static/screenshots/set.png)
+
+
+**나의 지출 현황 확인**
+
+![지출 현황](../static/screenshots/show.png)
 
 
 Flip Wallet을 통해 자신의 지출을 효율적으로 관리해보세요 💰🚀
