@@ -47,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <span class="name">${category.category_name}</span>
                             </div>
                             <div class="card-body">
-<!--                                <p><strong>예산:</strong> ${budget} 원</p>-->
                                 <p><strong>지출 금액:</strong> ${semiExpense} 원</p>
                                 <p><strong>잔여 금액:</strong> ${semiRemaining} 원</p>
                                 <p><strong>초과 금액:</strong> ${semiOver} 원</p>
@@ -66,4 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const recordGrid = document.querySelector(".record-grid");
             recordGrid.innerHTML = `<p>데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>`;
         });
+
+    // 지출 기록하기 버튼 클릭 이벤트 처리
+    const addExpenseButton = document.getElementById("add-expense-button");
+    if (addExpenseButton) {
+        addExpenseButton.addEventListener("click", () => {
+            window.location.href = "/writeExpense";
+        });
+    }
 });

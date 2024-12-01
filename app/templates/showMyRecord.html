@@ -9,13 +9,21 @@
 <body>
     <div class="container">
         <header class="header">
-            <img src="../static/assets/icons/header.png" alt="Flip Wallet Logo">
-            <h1>나의 지출 기록</h1>
-            <!-- 사용자 정보 표시 영역 -->
-            <div id="user-info" class="user-info" style="position: absolute; top: 10px; right: 20px; font-size: 14px; color: #333;">
-                <!-- 로그인한 사용자 이름을 JavaScript로 표시 -->
+            <div class="header-left">
+                <img src="../static/assets/icons/header.png" alt="Flip Wallet Logo">
+                <h1>나의 지출 기록</h1>
+            </div>
+            <div class="header-right">
+                <div id="user-info" class="user-info">
+                    <!-- 로그인한 사용자 이름을 JavaScript로 표시 -->
+                </div>
             </div>
         </header>
+
+        <!-- 지출 기록하기 버튼을 헤더 아래로 내림 -->
+        <div class="add-expense">
+            <button id="add-expense-button" class="submit-button">지출 기록하기</button>
+        </div>
 
         <section class="section">
             <h2>세부 목표와 현재 진행 상황</h2>

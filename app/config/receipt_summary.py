@@ -1,6 +1,6 @@
 def extract_receipt_summary(original_data):
     """
-    OCR 오리지날 데이터에서 필요한 부분만 추출해서 요약된 내용 만드는 함수
+    OCR 오리지널 데이터에서 필요한 부분만 추출해서 요약된 내용을 만드는 함수
     """
     try:
         # 이미지 리스트 확인
@@ -19,15 +19,32 @@ def extract_receipt_summary(original_data):
         payment_time = receipt.get("paymentInfo", {}).get("time", {}).get("text", "Unknown Time")  # 결제 시간
         payment_card = receipt.get("paymentInfo", {}).get("cardInfo", {}).get("company", {}).get("text",
                                                                                                  "Unknown Card")  # 카드사 정보
-        total_price = receipt.get("totalPrice", {}).get("price", {}).get("formatted", {}).get("value", "0")  # 총 결제 금액
+        total_price_str = receipt.get("totalPrice", {}).get("price", {}).get("formatted", {}).get("value",
+                                                                                                  "0")  # 총 결제 금액
+
+        try:
+            total_price = int(total_price_str.replace(",", ""))  # 금액을 숫자로 변환 (쉼표 제거)
+        except ValueError:
+            total_price = 0  # 변환 실패 시 기본값 설정
 
         # 항목 리스트 추출
         items = []
         sub_results = receipt.get("subResults", [])
         for sub_result in sub_results:
             for item in sub_result.get("items", []):
-                item_name = item.get("name", {}).get("text", "알 수 없는 item 이름")  # 항목 이름
-                items.append(item_name)
+                item_name = item.get("name", {}).get("text", "알 수 없는 항목 이름")  # 항목 이름
+                item_price = item.get("price", {}).get("formatted", {}).get("value", "0")  # 항목 금액
+
+                # 항목 금액 변환
+                try:
+                    item_price_value = int(item_price.replace(",", ""))
+                except ValueError:
+                    item_price_value = 0
+
+                items.append({
+                    "name": item_name,
+                    "price": item_price_value
+                })
 
         # 요약 데이터 구성 및 반환
         summary = {

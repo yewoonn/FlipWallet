@@ -18,26 +18,67 @@ body {
 
 .container {
     width: 100%;
-    max-width: 800px; /* 넓이 증가 */
+    max-width: 800px;
     padding: 20px;
     border-radius: 8px;
-    overflow-y: auto; /* 스크롤 가능하게 설정 */
-    height: 90vh; /* 세로 공간 확보 */
+    overflow-y: auto;
+    height: 90vh;
 }
 
 .header {
-    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 10px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
 }
 
 .header img {
     width: 150px;
     height: auto;
-    margin-bottom: 10px;
+    margin-right: 10px;
 }
 
 .header h1 {
     font-size: 24px;
     color: #7A3131;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;  /* 우측 정렬 */
+    flex-grow: 1;
+}
+
+.user-info {
+    font-size: 14px;
+    color: #333;
+}
+
+/* 지출 기록하기 버튼 */
+.add-expense {
+    text-align: right;  /* 우측 정렬 */
+    margin-bottom: 10px;  /* 버튼과 나머지 섹션 간격 감소 */
+}
+
+#add-expense-button {
+    padding: 20px 30px;  /* 버튼 크기 축소 */
+    font-size: 16px;
+    color: #fff;
+    background-color: #e63946;  /* 기존 컬러 유지 */
+    border: none;
+    border-radius: 8px;  /* 둥근 모서리 설정 */
+    cursor: pointer;
+}
+
+#add-expense-button:hover {
+    background-color: #d62828;  /* hover 색상 기존 컬러 유지 */
 }
 
 .section h2 {
@@ -49,7 +90,7 @@ body {
 .record-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 15px; /* 각 카드 간격 */
+    gap: 15px;
 }
 
 /* 카테고리 카드 */

@@ -440,3 +440,110 @@ async def process_receipt(
 
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@app.post("/processReceipt")
+async def process_receipt_with_expense(
+        file: UploadFile = File(...),
+        category_id: int = Form(...),  # 사용자가 선택한 카테고리
+        member_id: str = Form(...),  # 현재 로그인한 사용자 ID
+        request_id: Optional[str] = Form("12345"),
+        version: Optional[str] = Form("V2"),
+        db: Session = Depends(get_db)
+):
+    """
+    영수증 이미지를 업로드하고 카테고리를 선택한 후, 지출 내역에 기록하는 엔드포인트
+    """
+    try:
+        # 영수증 OCR 처리 (기존 코드와 동일)
+        message = {
+            "version": version,
+            "requestId": request_id,
+            "timestamp": int(time.time() * 1000),
+            "images": [
+                {
+                    "format": file.filename.split(".")[-1],
+                    "name": file.filename,
+                }
+            ],
+        }
+
+        file_bytes = await file.read()
+
+        headers = {
+            "X-OCR-SECRET": receipt_SECRET_KEY,
+        }
+        files = {
+            "message": (None, json.dumps(message)),
+            "file": (file.filename, file_bytes, file.content_type),
+        }
+
+        response = requests.post(APIGW_Invoke_URL, headers=headers, files=files)
+
+        if response.status_code == 200:
+            api_response = response.json()
+            summary = extract_receipt_summary(api_response)  # 영수증 요약 정보 추출 (금액, 항목명 등)
+
+            # 추출된 정보
+            item = summary.get("item")  # 예: "스타벅스 커피"
+            price = summary.get("price")  # 예: 5400
+
+            if not item or not price:
+                raise HTTPException(status_code=400, detail="영수증에서 필요한 정보를 추출하지 못했습니다.")
+
+            # 사용자, 카테고리, 지출 정보를 이용해 지출 내역에 반영하기
+            semi_goal = db.query(SemiGoal).filter(SemiGoal.category_id == category_id).first()
+            if not semi_goal:
+                raise HTTPException(status_code=404, detail="지출 카테고리와 연관된 목표를 찾을 수 없습니다.")
+
+            semi_goal_process = db.query(SemiGoalProcess).filter(
+                SemiGoalProcess.semi_id == semi_goal.semi_id,
+                SemiGoalProcess.member_id == member_id
+            ).first()
+
+            if not semi_goal_process:
+                raise HTTPException(
+                    status_code=404,
+                    detail="지출 목표와 연관된 진행 상황 데이터를 찾을 수 없습니다."
+                )
+
+            # Expense 데이터베이스에 추가
+            new_expense = Expense(
+                expense_id=str(uuid.uuid4()),
+                semi_process_id=semi_goal_process.semi_process_id,
+                goal_id=semi_goal_process.goal_id,
+                member_id=member_id,
+                price=price,
+                item=item,
+                created_at=datetime.now()
+            )
+            db.add(new_expense)
+
+            # 잔여 예산 업데이트
+            semi_remaining = semi_goal_process.semi_remaining or 0
+            remaining = semi_remaining - price
+
+            if remaining < 0:
+                semi_goal_process.semi_remaining = 0
+                semi_goal_process.semi_over = (semi_goal_process.semi_over or 0) + abs(remaining)
+            else:
+                semi_goal_process.semi_remaining = remaining
+
+            semi_goal_process.semi_expense += price
+
+            # TotalGoal 업데이트
+            total_goal = db.query(TotalGoal).filter(TotalGoal.goal_id == semi_goal_process.goal_id).first()
+            if total_goal:
+                total_goal.total_expense += price
+                total_remaining = total_goal.total_remaining or 0
+                total_goal.total_remaining = max(0, total_remaining - price)
+
+            db.commit()
+            return {"message": "영수증 인식 및 지출 내역이 성공적으로 저장되었습니다."}
+
+        else:
+            return {"status": "error", "code": response.status_code, "message": response.text}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"서버 오류 발생: {str(e)}")
