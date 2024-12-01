@@ -17,8 +17,8 @@ CREATE TABLE `Total-Goal` (
     `member_id` UUID NOT NULL,
     `total_budget` FLOAT NULL DEFAULT 0.0 CHECK (`total_budget` >= 0),
     `total_expense` FLOAT NULL DEFAULT 0.0 CHECK (`total_expense` >= 0),
-    `total_over` FLOAT NULL DEFAULT 0.0 COMMENT,
-    `total_remaining` FLOAT NULL DEFAULT 0.0 CHECK (`total_remaining` >= 0) COMMENT 'Derived',
+    `total_over` FLOAT NULL DEFAULT 0.0,
+    `total_remaining` FLOAT NULL DEFAULT 0.0 CHECK (`total_remaining` >= 0),
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`goal_id`),
     FOREIGN KEY (`member_id`) REFERENCES `Member`(`member_id`)
