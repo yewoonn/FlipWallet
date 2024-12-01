@@ -24,12 +24,18 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             console.log("Received data: ", data); // 데이터 로깅
             const recordGrid = document.querySelector(".record-grid");
+            // 전체 예산 표시
+            const totalBudgetDisplay = document.createElement("div");
+            totalBudgetDisplay.className = "total-budget";
+            totalBudgetDisplay.innerHTML = `<h2>전체 예산: ${data.total_budget.toLocaleString()} 원</h2>`;
+            recordGrid.before(totalBudgetDisplay); // 기록 그리드 위에 추가
 
             if (data && data.categories && data.categories.length > 0) {
                 recordGrid.innerHTML = ''; // 기존 기록 초기화
 
                 data.categories.forEach((category) => {
-                    const budget = category.budget !== undefined ? parseInt(category.budget).toLocaleString() : "0";
+                    // semi_budget 값을 가져와 예산에 표시
+                    const budget = category.budget !== undefined ? parseInt(category.budget).toLocaleString() : "0"; // budget => semi_budget으로 매핑
                     const semiExpense = category.semi_expense !== undefined ? parseInt(category.semi_expense).toLocaleString() : "0";
                     const semiRemaining = category.semi_remaining !== undefined ? parseInt(category.semi_remaining).toLocaleString() : "0";
                     const semiOver = category.semi_over !== undefined ? parseInt(category.semi_over).toLocaleString() : "0";
@@ -41,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <span class="name">${category.category_name}</span>
                             </div>
                             <div class="card-body">
-                                <p><strong>예산:</strong> ${budget} 원</p>
+<!--                                <p><strong>예산:</strong> ${budget} 원</p>-->
                                 <p><strong>지출 금액:</strong> ${semiExpense} 원</p>
                                 <p><strong>잔여 금액:</strong> ${semiRemaining} 원</p>
                                 <p><strong>초과 금액:</strong> ${semiOver} 원</p>

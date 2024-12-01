@@ -56,6 +56,7 @@
   .main-button {
     padding: 15px;
     font-size: 16px;
+    font-weight: bold; /* 글씨를 굵게 설정 */
     color: #F25B5B;
     border: solid 2px;
     border-radius: 8px;

@@ -5,19 +5,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const viewGoalButton = document.getElementById("view-goal-button");
   
     writeExpenseButton.addEventListener("click", () => {
-      window.location.href = "writeExpense.html"; 
+        window.location.href = "/writeExpense";
     });
   
     viewExpenseButton.addEventListener("click", () => {
-      window.location.href = "showMyRecord.html"; 
+      window.location.href = "/showMyRecord";
     });
   
     setGoalButton.addEventListener("click", () => {
-      window.location.href = "setSemiGoal.html"; 
+      window.location.href = "/setSemiGoal";
     });
   
     viewGoalButton.addEventListener("click", () => {
-      window.location.href = "viewGoal.html"; 
+      window.location.href = "/viewGoal";
     });
   });
   

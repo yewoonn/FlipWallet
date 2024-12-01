@@ -66,6 +66,11 @@ if not os.path.exists(os.path.join(PROJECT_ROOT, "..", "test.db")):
 """
 #1. GET으로 페이지 불러오기 
 """
+# 0. 메인 화면
+@app.get("/", response_class=HTMLResponse)
+async def main_page(request: Request):
+    return templates.TemplateResponse("main.html", {"request": request})
+
 # 1. 회원가입 페이지
 @app.get("/signup", response_class=HTMLResponse)
 async def get_signup_page(request: Request):
@@ -149,7 +154,7 @@ async def login(login_request: LoginRequest, db: Session = Depends(get_db)):
         status_code=200,
         content={
             "message": "Login successful",
-            "redirect_url": "/showMyRecord",
+            "redirect_url": "/",
             "member_id": user.member_id,
             "name": user.name
         }
@@ -175,7 +180,7 @@ async def set_semi_goal(request: SetSemiGoalRequest, db: Session = Depends(get_d
                 goal_id=str(uuid.uuid4()),
                 member_id=request.member_id,
                 created_at=datetime.now(),
-                total_budget=0.0,
+                total_budget=0.0,  # 전체 예산 초기값
                 total_expense=0.0,
                 total_over=0.0,
                 total_remaining=0.0
@@ -185,6 +190,7 @@ async def set_semi_goal(request: SetSemiGoalRequest, db: Session = Depends(get_d
             db.refresh(total_goal)
 
         # 세부 목표 설정
+        total_budget = 0.0  # 전체 예산을 계산하기 위한 변수
         for category_data in request.categories:
             # 기존에 SemiGoal이 있는지 확인
             semi_goal = db.query(SemiGoal).filter(SemiGoal.category_id == category_data.category_id).first()
@@ -223,12 +229,21 @@ async def set_semi_goal(request: SetSemiGoalRequest, db: Session = Depends(get_d
                 )
                 db.add(new_semi_goal_process)
 
+            # 총 예산에 각 카테고리 예산 추가
+            total_budget += category_data.budget
+
+        # 비상금을 전체 예산에 추가
+        total_budget += request.surplus_budget
+
+        # TotalGoal 업데이트
+        total_goal.total_budget = total_budget
+        total_goal.total_remaining = total_budget  # 초기에는 남은 금액이 전체 예산과 동일
         db.commit()
+
         return {"message": "세부 목표와 목표 진행 데이터가 성공적으로 저장되었습니다."}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"서버 오류 발생: {str(e)}")
-
 
 
 
@@ -243,6 +258,11 @@ async def get_my_record(member_id: str = Query(...), db: Session = Depends(get_d
         if not member:
             raise HTTPException(status_code=404, detail="User not found")
 
+        # TotalGoal 데이터 가져오기
+        total_goal = db.query(TotalGoal).filter(TotalGoal.member_id == member_id).first()
+        if not total_goal:
+            return {"categories": [], "total_budget": 0}
+
         # 세부 목표 진행 상황 조회
         records = (
             db.query(SemiGoalProcess, SemiGoal, Category)
@@ -251,10 +271,6 @@ async def get_my_record(member_id: str = Query(...), db: Session = Depends(get_d
             .filter(SemiGoalProcess.member_id == member_id)
             .all()
         )
-
-        if not records or len(records) == 0:
-            print("기록이 없습니다.")
-            return {"categories": []}
 
         response_data = []
         for semi_process, semi_goal, category in records:
@@ -268,10 +284,11 @@ async def get_my_record(member_id: str = Query(...), db: Session = Depends(get_d
                 "semi_over": float(semi_process.semi_over) if semi_process and semi_process.semi_over else 0.0
             })
 
-        # 수신된 데이터를 로그로 출력하여 확인
-        print("반환 데이터:", response_data)
-
-        return {"categories": response_data}
+        # 반환 값에 total_budget 추가
+        return {
+            "categories": response_data,
+            "total_budget": total_goal.total_budget  # 전체 예산을 추가로 반환
+        }
 
     except Exception as e:
         print(f"오류 발생: {str(e)}")
@@ -310,7 +327,7 @@ async def write_expense(expense_request: ExpenseRequest, db: Session = Depends(g
         # Expense 데이터 생성 및 삽입
         new_expense = Expense(
             expense_id=str(uuid.uuid4()),
-            semi_process_id=semi_goal_process.semi_process_id,  # 수정된 부분: semi_process_id 사용
+            semi_process_id=semi_goal_process.semi_process_id,
             goal_id=semi_goal_process.goal_id,
             member_id=expense_request.member_id,
             price=expense_request.price,
@@ -319,15 +336,33 @@ async def write_expense(expense_request: ExpenseRequest, db: Session = Depends(g
         )
         db.add(new_expense)
 
-        # 잔여 예산 업데이트 (Semi Goal Process)
-        semi_goal_process.semi_expense += expense_request.price
-        semi_goal_process.semi_remaining -= expense_request.price
+        # 잔여 금액 및 초과 금액 계산
+        semi_remaining = semi_goal_process.semi_remaining or 0  # None이면 0으로 처리
+        semi_over = semi_goal_process.semi_over or 0  # None이면 0으로 처리
 
-        # Total-Goal 업데이트 (전체 목표 금액 차감)
+        remaining = semi_remaining - expense_request.price
+        if remaining < 0:
+            semi_goal_process.semi_remaining = 0
+            semi_goal_process.semi_over = semi_over + abs(remaining)  # 초과 금액 추가
+        else:
+            semi_goal_process.semi_remaining = remaining
+
+        semi_goal_process.semi_expense += expense_request.price
+
+        # Total-Goal 업데이트
         total_goal = db.query(TotalGoal).filter(TotalGoal.goal_id == semi_goal_process.goal_id).first()
         if total_goal:
-            total_goal.total_expense += expense_request.price
-            total_goal.total_remaining -= expense_request.price
+            total_expense = total_goal.total_expense or 0  # None이면 0으로 처리
+            total_remaining = total_goal.total_remaining or 0  # None이면 0으로 처리
+            total_over = total_goal.total_over or 0  # None이면 0으로 처리
+
+            total_goal.total_expense = total_expense + expense_request.price
+            remaining_total = total_remaining - expense_request.price
+            if remaining_total < 0:
+                total_goal.total_remaining = 0
+                total_goal.total_over = total_over + abs(remaining_total)
+            else:
+                total_goal.total_remaining = remaining_total
 
         db.commit()
         return {"message": "지출 기록이 성공적으로 저장되었습니다."}
