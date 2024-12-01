@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitButton = document.querySelector(".submit-button");
     const amountInput = document.getElementById("amount-input");
     const directInputButton = document.querySelector(".direct-input-button");
+    const receiptInputButton = document.querySelector(".receipt-input-button");
     const amountButtons = document.querySelectorAll(".amount-button");
 
     // 로그인된 사용자 정보
@@ -62,6 +63,13 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("올바른 금액을 입력하세요.");
         }
     });
+
+    // "영수증으로 입력하기" 버튼 클릭 이벤트
+    receiptInputButton.addEventListener("click", () => {
+        window.location.href = "/receiptRecord"; // 영수증 페이지로 리다이렉트
+    });
+
+
     // 제출 버튼 클릭 이벤트
     submitButton.addEventListener("click", () => {
         // 사용자 입력 값 가져오기

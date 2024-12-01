@@ -1,10 +1,14 @@
-import os, uuid
+import json, os, uuid
+import time, requests
 from datetime import datetime
+from typing import Optional
+from dotenv import load_dotenv
 
 from sqlalchemy import create_engine, Column, String
-from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import sessionmaker, Session
-from fastapi import FastAPI, HTTPException, Form, Depends, Request, Query, status
+
+from fastapi import FastAPI, HTTPException, Depends, Request, File, UploadFile, Form, Query, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -20,6 +24,9 @@ from app.models.semi_goal_process import SemiGoalProcess
 from app.models.category import Category
 from app.models.expense import Expense
 from app.models.surplus import Surplus
+from app.config.receipt_summary import extract_receipt_summary
+
+load_dotenv()
 
 # FastAPI 애플리케이션 생성
 app = FastAPI()
@@ -36,12 +43,18 @@ app.add_middleware(
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 프로젝트 루트 경로
 TEMPLATES_DIR = os.path.join(PROJECT_ROOT, "app", "templates")  # templates 폴더 절대 경로 지정
 STATIC_DIR = os.path.join(PROJECT_ROOT, "app", "static")  # static 폴더 절대 경로 지정
+
 # 템플릿 설정
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # bcrypt 설정
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# 영수증 설정
+receipt_SECRET_KEY = os.getenv("receipt_SECRET_KEY")
+APIGW_Invoke_URL = os.getenv("APIGW_Invoke_URL")
+IMAGE_PATH = "./file.jpg" # 로컬환경
 
 # 비밀번호 해시 함수
 def hash_password(password: str) -> str:
@@ -374,3 +387,56 @@ async def write_expense(expense_request: ExpenseRequest, db: Session = Depends(g
         print("서버에서 예외 발생:", str(e))
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+@app.post("/receipt")
+async def process_receipt(
+    file: UploadFile = File(...),
+    request_id: Optional[str] = Form("12345"),
+    version: Optional[str] = Form("V2"),
+):
+    """
+    Process receipt image and send to Clova OCR API
+    """
+    try:
+        # 메시지 생성
+        message = {
+            "version": version,
+            "requestId": request_id,
+            "timestamp": int(time.time() * 1000),
+            "images": [
+                {
+                    "format": file.filename.split(".")[-1],  # 파일 확장자
+                    "name": file.filename,  # 파일 이름
+                }
+            ],
+        }
+
+        # 파일 읽기
+        file_bytes = await file.read()  # 파일 데이터 읽기
+
+        # API 요청 헤더 및 데이터 설정
+        headers = {
+            "X-OCR-SECRET": receipt_SECRET_KEY,
+        }
+        files = {
+            "message": (None, json.dumps(message)),
+            "file": (file.filename, file_bytes, file.content_type),
+        }
+
+        # POST 요청 보내기
+        response = requests.post(APIGW_Invoke_URL, headers=headers, files=files)
+
+        # 응답 처리
+        if response.status_code == 200:
+            api_response = response.json()
+            summary = extract_receipt_summary(api_response)
+            return {"status": "success", "summary": summary}
+        else:
+            return {"status": "error", "code": response.status_code, "message": response.text}
+
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

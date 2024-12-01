@@ -171,10 +171,25 @@
     width: 100px;
     cursor: pointer;
   }
+
+  .receipt-input-button {
+    background-color: #e63946;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 15px;
+    font-size: 14px;
+    width: 100px;
+    cursor: pointer;
+}
   
   .direct-input-button:hover {
     background-color: #d62828;
   }
+
+  .receipt-input-button:hover {
+    background-color: #d62828;
+}
   
   .amount-buttons {
     display: flex;
@@ -224,8 +239,5 @@
     .category .name {
       font-size: 12px;
     }
-
-
-    
   }
   
