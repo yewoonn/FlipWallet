@@ -69,27 +69,27 @@ uvicorn app.main:app --reload
 
 **메인 화면**
 
-![메인 화면](../static/screenshots/main.png)
+![메인 화면](app/static/screenshots/main.png)
 
 
 **영수증 업로드 화면**
 
-![영수증 업로드](../static/screenshots/receipt.png)
+![영수증 업로드](app/static/screenshots/receipt.png)
 
 
 **지출 기록 화면**
 
-![지출 기록](../static/screenshots/record.png)
+![지출 기록](app/static/screenshots/record.png)
 
 
 **세부 목표 설정 화면**
 
-![세부 목표 설정](../static/screenshots/set.png)
+![세부 목표 설정](app/static/screenshots/set.png)
 
 
 **나의 지출 현황 확인**
 
-![지출 현황](../static/screenshots/show.png)
+![지출 현황](app/static/screenshots/show.png)
 
 
 Flip Wallet을 통해 자신의 지출을 효율적으로 관리해보세요 💰🚀
