@@ -33,19 +33,17 @@
 
 ### 1. 저장소 클론
 ```
-git clone <repository-url>
-cd FlipWallet
+git clone https://github.com/jeonkwanghwi/DataBase_flipWallet.git
+cd DataBase_flipWallet
 ```
 
-### 2. 가상환경 설정 및 필요 패키지 설치
-```bash
-python -m venv venv
-source venv/bin/activate  # Windows에서는 `venv\Scripts\activate`
+### 2. 필요 패키지 설치
+```
 pip install -r requirements.txt
 ```
 
 ### 3. 환경변수 설정
-- 프로젝트 루트에 `.env` 파일을 생성하고, 아래의 환경 변수를 설정하세요:
+- 프로젝트 루트에 `.env` 파일을 생성하고, 환경 변수를 설정하세요:
 ```
 receipt_SECRET_KEY=<YOUR_CLOVA_SECRET_KEY>
 APIGW_Invoke_URL=<YOUR_CLOVA_API_URL>
