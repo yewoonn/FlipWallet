@@ -34,6 +34,8 @@
 ### 1. 저장소 클론
 ```
 git clone https://github.com/jeonkwanghwi/DataBase_flipWallet.git
+```
+```
 cd DataBase_flipWallet
 ```
 
