@@ -100,4 +100,3 @@ uvicorn app.main:app --reload
 
 
 Flip Wallet을 통해 자신의 지출을 효율적으로 관리해보세요 💰🚀
-
