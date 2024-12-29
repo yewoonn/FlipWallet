@@ -10,7 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // 사용자 이름을 우측 상단에 표시
     const userInfoDisplay = document.getElementById("user-info");
     if (userInfoDisplay && memberName) {
-        userInfoDisplay.textContent = `안녕하세요, ${memberName}님!`;
+        // userInfoDisplay.textContent = `안녕하세요, ${memberName}님!`;
+        userInfoDisplay.textContent = `안녕하세요, 한예원님!`;
+
     }
 
     // 나의 지출 기록을 가져와서 화면에 표시
